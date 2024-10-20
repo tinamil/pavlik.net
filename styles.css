@@ -178,7 +178,8 @@ footer {
     text-align: center;
     padding: 1rem 0;
     margin-top: 1rem;
-	font-size: 0.75rem;
+    font-size: 1rem;
+    color: #FF7F50;
 }
 
 footer p {
@@ -194,6 +195,16 @@ a:hover {
     color: #B75C3A; /* Dark orange on hover */
 }
 
+svg {
+    width: 30px;
+    height: 30px;
+    fill: #FF7F50;
+}
+
+svg:hover {
+    fill: #B75C3A;
+}
+  
 
 /* Responsive Layout */
 @media (max-width: 768px) {
