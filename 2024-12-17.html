@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECS Implementation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="images/favicon.ico">
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Navigation -->
+        <nav>
+            <div class="nav-container" id="navbar">
+                <!-- Logo -->
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="images/logo.webp" alt="John Pavlik's Logo">
+                    </a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Me</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <header>
+            <h1 class="name"><a href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" style="fill: #FF7F50;transform: ;msFilter:;">
+                        <path d="M21 11H6.414l5.293-5.293-1.414-1.414L2.586 12l7.707 7.707 1.414-1.414L6.414 13H21z">
+                        </path>
+                    </svg></a>
+                ECS Implementation in C++</h1>
+            <p class="tagline"><em>Published on: December 17, 2024</em></p>
+        </header>
+
+        <section id="blog-post-content">
+            <article class="post-content">
+                <p>Implementing ECS in C++ can be done by creating an EntityComponentSystem manager class, which holds
+                    entities and archetypes.
+                    Entities represent individual objects, while archetypes represent a grouping of components. If you
+                    think about an ECS
+                    Structure of Arrays (SoA) as a 2D data structure of rows and columns, the archetype is the set of
+                    all rows in that SoA and the entity
+                    uniquely identifies a specific column. Each unique archetype maps to a different SoA structure.</p>
+
+                <p>There are other ways of organizing the SOAs. See <a
+                        href="https://github.com/skypjack/entt/wiki/Entity-Component-System">skypjack/entt</a>
+                    for a different architecture, and probably worth just using their open source well-tested
+                    implementation unless you really want to
+                    implement your own architecture. </p>
+
+                <p>The ECS manager is responsible for being the primary interface for the user. The user can create a
+                    new entity. Add or remove a
+                    component from an entity (which moves it to a new archetype). Access component data for a given
+                    entity. Serialize and deserialize
+                    data to/from disk. And most importantly, efficiently query for all entities which have one or more
+                    specific components.</p>
+
+                <p>That serialization has a few gotchas associated with it. It's important that there aren't any
+                    pointers stored in components
+                    that get serialized, because they will be invalid on a reload. All data needs to be stored on the
+                    struct, and any
+                    pointers need to be set to null during serialization and automatically re-built whenever they are
+                    null.</p>
+
+                <p>One example is that
+                    my Sprite class holds a path name to the associated image file with a pointer to a different class
+                    that holds the texture buffer
+                    on the GPU. Each time the renderer tries to render a sprite, if the pointer is null then it re-sets
+                    that pointer using a cache that is
+                    built during startup. Every sprite with the same path ends up sharing the pointer to the texture
+                    cache so that it only gets loaded once
+                    into the GPU.
+                </p>
+
+                <p>My UI elements have a similar problem because they use a lot of an Update component which just holds
+                    an std::function that runs every frame to do some sort of one-off task. To handle those I have a
+                    list of
+                    components which are considered UI elements and I exclude those from serialization entirely. My
+                    deserialization
+                    function deletes all existing UI elements and calls the function to build them again from scratch
+                    after deserialization is complete.
+                </p>
+
+                <a href="index.html" class="btn">Back to Home</a>
+            </article>
+        </section>
+        <footer>
+            <a href="https://github.com/tinamil" aria-label="John's GitHub Profile" title="John's GitHub Profile"><svg
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12.026 2c-5.509 0-9.974 4.465-9.974 9.974 0 4.406 2.857 8.145 6.821 9.465.499.09.679-.217.679-.481 0-.237-.008-.865-.011-1.696-2.775.602-3.361-1.338-3.361-1.338-.452-1.152-1.107-1.459-1.107-1.459-.905-.619.069-.605.069-.605 1.002.07 1.527 1.028 1.527 1.028.89 1.524 2.336 1.084 2.902.829.091-.645.351-1.085.635-1.334-2.214-.251-4.542-1.107-4.542-4.93 0-1.087.389-1.979 1.024-2.675-.101-.253-.446-1.268.099-2.64 0 0 .837-.269 2.742 1.021a9.582 9.582 0 0 1 2.496-.336 9.554 9.554 0 0 1 2.496.336c1.906-1.291 2.742-1.021 2.742-1.021.545 1.372.203 2.387.099 2.64.64.696 1.024 1.587 1.024 2.675 0 3.833-2.33 4.675-4.552 4.922.355.308.675.916.675 1.846 0 1.334-.012 2.41-.012 2.737 0 .267.178.577.687.479C19.146 20.115 22 16.379 22 11.974 22 6.465 17.535 2 12.026 2z">
+                    </path>
+                </svg></a>
+            <a href="https://www.linkedin.com/in/john-pavlik-phd-6780633a/" aria-label="John's LinkedIn Profile"
+                title="John's LinkedIn Profile"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M20 3H4a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM8.339 18.337H5.667v-8.59h2.672v8.59zM7.003 8.574a1.548 1.548 0 1 1 0-3.096 1.548 1.548 0 0 1 0 3.096zm11.335 9.763h-2.669V14.16c0-.996-.018-2.277-1.388-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248h-2.667v-8.59h2.56v1.174h.037c.355-.675 1.227-1.387 2.524-1.387 2.704 0 3.203 1.778 3.203 4.092v4.71z">
+                    </path>
+                </svg></a>
+            <a href="https://scholar.google.com/citations?user=2l5GlxAAAAAJ&hl=en"
+                aria-label="John's Google Scholar Profile" title="John's Google Scholar Profile"><svg
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="100 25 475 475">
+                    <path
+                        d="M213 111l-107 94h69c5 45 41 64 78 67-7 18-4 27 7 39-43 1-103 26-103 67 4 45 63 54 92 54 38 1 81-19 90-54 4-35-10-54-31-71-23-18-28-28-21-40 15-17 35-27 39-51 2-17-2-28-6-43l45-38-1 16c-3 2-5 6-5 9v103c2 13 22 11 23 0V160c0-3-2-7-5-8v-25l16-16zm58 141c-61 10-87-87-38-99 56-11 83 86 38 99zm-5 73c60 13 61 63 10 78-44 9-82-4-81-30 0-25 35-48 71-48z" />
+                </svg></a>
+        </footer>
+    </div>
+</body>
+
+</html>
